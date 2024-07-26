@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id            Int    @id @default(autoincrement())
+  name          String @db.VarChar(255)
+  email         String @unique(map: "email") @db.VarChar(255)
+  password_hash String @db.VarChar(255)
+}
+
+model categories {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @unique(map: "name") @db.VarChar(255)
+  description        String?              @db.Text
+  product_categories product_categories[]
+}
+
+model types {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique(map: "name") @db.VarChar(255)
+  product_types product_types[]
+}
+
+model countries {
+  id                Int                 @id @default(autoincrement())
+  name              String              @unique(map: "name") @db.VarChar(255)
+  product_countries product_countries[]
+}
+
+model grapes {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique(map: "name") @db.VarChar(255)
+  product_grapes product_grapes[]
+}
+
+model regions {
+  id              Int               @id @default(autoincrement())
+  name            String            @unique(map: "name") @db.VarChar(255)
+  product_regions product_regions[]
+}
+
+model pairings {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique(map: "name") @db.VarChar(255)
+  product_pairings product_pairings[]
+}
+
+model products {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar(255)
+  description        String?              @db.Text
+  price              Decimal              @db.Decimal(10, 2)
+  promotional_price  Decimal?             @db.Decimal(10, 2)
+  is_active          Boolean?             @default(true)
+  deleted_at         DateTime?            @db.DateTime(0)
+  product_categories product_categories[]
+  product_countries  product_countries[]
+  product_grapes     product_grapes[]
+  product_images     product_images[]
+  product_pairings   product_pairings[]
+  product_regions    product_regions[]
+  product_types      product_types[]
+}
+
+model product_images {
+  id         Int       @id @default(autoincrement())
+  product_id Int?
+  image_url  String    @db.VarChar(255)
+  is_primary Boolean?  @default(false)
+  deleted_at DateTime? @db.DateTime(0)
+  products   products? @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_images_ibfk_1")
+
+  @@index([product_id], map: "product_id")
+}
+
+model product_categories {
+  product_id  Int
+  category_id Int
+  products    products   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_categories_ibfk_1")
+  categories  categories @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_categories_ibfk_2")
+
+  @@id([product_id, category_id])
+  @@index([category_id], map: "category_id")
+}
+
+model product_types {
+  product_id Int
+  type_id    Int
+  products   products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_types_ibfk_1")
+  types      types    @relation(fields: [type_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_types_ibfk_2")
+
+  @@id([product_id, type_id])
+  @@index([type_id], map: "type_id")
+}
+
+model product_countries {
+  product_id Int
+  country_id Int
+  products   products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_countries_ibfk_1")
+  countries  countries @relation(fields: [country_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_countries_ibfk_2")
+
+  @@id([product_id, country_id])
+  @@index([country_id], map: "country_id")
+}
+
+model product_grapes {
+  product_id Int
+  grape_id   Int
+  products   products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_grapes_ibfk_1")
+  grapes     grapes   @relation(fields: [grape_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_grapes_ibfk_2")
+
+  @@id([product_id, grape_id])
+  @@index([grape_id], map: "grape_id")
+}
+
+model product_regions {
+  product_id Int
+  region_id  Int
+  products   products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_regions_ibfk_1")
+  regions    regions  @relation(fields: [region_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_regions_ibfk_2")
+
+  @@id([product_id, region_id])
+  @@index([region_id], map: "region_id")
+}
+
+model product_pairings {
+  product_id Int
+  pairing_id Int
+  products   products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_pairings_ibfk_1")
+  pairings   pairings @relation(fields: [pairing_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_pairings_ibfk_2")
+
+  @@id([product_id, pairing_id])
+  @@index([pairing_id], map: "pairing_id")
+}
